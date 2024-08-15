@@ -43,8 +43,8 @@ client.once('ready', async () => {
 
     // Tâche cron pour exécuter tous les vendredis à 12h
     // toutes les 2 minutes pour tester
-    cron.schedule('*/2 * * * *', async () => {
-        // cron.schedule('0 12 * * 5', async () => {
+    // cron.schedule('*/2 * * * *', async () => {
+        cron.schedule('0 12 * * 5', async () => {
         console.log('Running weekly rap releases cron job...');
     
         const channel = client.channels.cache.get(process.env.CHANNEL_ID!) as TextChannel;
