@@ -47,9 +47,9 @@ client.once('ready', async () => {
     console.log('Guild not found.');
   }
 
+  //start cron job
   const cron = new Cron(spotifyApi, client.channels.cache.get(process.env.CHANNEL_ID!) as TextChannel);
-
-  
+  cron.start();
 });
 
 // Gestionnaire des commandes slash
