@@ -38,7 +38,7 @@ jobs:
             sudo npm run build
 
             # Lancer l'application Node.js en arrière-plan
-            pm2 stop index || true # Arrêter l'application si elle est déjà en cours d'exécution
+            pm2 stop xxxtentacion || true # Arrêter l'application si elle est déjà en cours d'exécution
             pm2 start dist/index.js --name xxxtentacion # Démarrer l'application avec pm2
 
       - name: Verify Deployment
