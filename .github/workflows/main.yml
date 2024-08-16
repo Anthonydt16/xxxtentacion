@@ -28,27 +28,14 @@ jobs:
           script: |
             # Définir le chemin du projet sur le VPS
             PROJECT_PATH="/home/anthony/xxxtentacion"
-            # Vérifier si le projet existe déjà
-            if [ -d "$PROJECT_PATH" ]; then
-              echo "Le projet existe déjà. Mise à jour du code..."
-              cd $PROJECT_PATH
-              git pull origin main
-            else
-              echo "Le projet n'existe pas. Clonage du dépôt..."
-              cd /home/anthony
-              git clone https://github.com/Anthonydt16/xxxtentacion.git
-              cd $PROJECT_PATH
-              sudo touch .env
-            fi
-
-            # mettre à jour le fichier .env
-            sed -i 's/^\(TOKEN\s*=\s*\).*$/\1${{ secrets.TOKEN }}/; s/^\(CHANNEL_ID\s*=\s*\).*$/\1${{ secrets.CHANNEL_ID }}/; s/^\(SPOTIFY_CLIENT_ID\s*=\s*\).*$/\1${{ secrets.SPOTIFY_CLIENT_ID }}/; s/^\(SPOTIFY_CLIENT_SECRET\s*=\s*\).*$/\1${{ secrets.SPOTIFY_CLIENT_SECRET }}/; s/^\(GUILD_ID\s*=\s*\).*$/\1${{ secrets.GUILD_ID }}/;' .env
-
+            cd $PROJECT_PATH
+            #sudo git pull origin master on tape le mot de passe dans secret.password
+            echo ${{ secrets.PASSWORD }} | sudo -S git pull origin master
             # Installer les dépendances Node.js
-            npm install
+            sudo npm install
 
             # Compiler le TypeScript en JavaScript
-            npm run build
+            sudo npm run build
 
             # Lancer l'application Node.js en arrière-plan
             pm2 stop index || true # Arrêter l'application si elle est déjà en cours d'exécution
