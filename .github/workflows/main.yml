@@ -27,8 +27,7 @@ jobs:
           port: ${{ env.PORT }}
           script: |
             # Définir le chemin du projet sur le VPS
-            PROJECT_PATH="xxxtentacion"
-
+            PROJECT_PATH="/home/anthony/xxxtentacion"
             # Vérifier si le projet existe déjà
             if [ -d "$PROJECT_PATH" ]; then
               echo "Le projet existe déjà. Mise à jour du code..."
@@ -36,6 +35,7 @@ jobs:
               git pull origin main
             else
               echo "Le projet n'existe pas. Clonage du dépôt..."
+              cd /home/anthony
               git clone https://github.com/Anthonydt16/xxxtentacion.git
               cd $PROJECT_PATH
               sudo touch .env
