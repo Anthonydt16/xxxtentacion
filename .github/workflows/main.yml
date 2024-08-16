@@ -27,7 +27,7 @@ jobs:
           port: ${{ env.PORT }}
           script: |
             # Définir le chemin du projet sur le VPS
-            PROJECT_PATH="xxxTentacion"
+            PROJECT_PATH="xxxtentacion"
 
             # Vérifier si le projet existe déjà
             if [ -d "$PROJECT_PATH" ]; then
@@ -36,10 +36,11 @@ jobs:
               git pull origin main
             else
               echo "Le projet n'existe pas. Clonage du dépôt..."
-              git clone https://github.com/Anthonydt16/xxxtentacion.git $PROJECT_PATH
+              git clone https://github.com/Anthonydt16/xxxtentacion.git
               cd $PROJECT_PATH
             fi
-            #crée un fichier .env
+
+            # Créer ou mettre à jour le fichier .env
             if [ -f .env ]; then
                 echo "Fichier .env trouvé. Mise à jour des variables..."
             else
@@ -47,6 +48,16 @@ jobs:
                 touch .env
             fi
             sed -i 's/^\(TOKEN\s*=\s*\).*$/\1${{ secrets.TOKEN }}/; s/^\(CHANNEL_ID\s*=\s*\).*$/\1${{ secrets.CHANNEL_ID }}/; s/^\(SPOTIFY_CLIENT_ID\s*=\s*\).*$/\1${{ secrets.SPOTIFY_CLIENT_ID }}/; s/^\(SPOTIFY_CLIENT_SECRET\s*=\s*\).*$/\1${{ secrets.SPOTIFY_CLIENT_SECRET }}/; s/^\(GUILD_ID\s*=\s*\).*$/\1${{ secrets.GUILD_ID }}/;' .env
-            # Construire et démarrer les conteneurs Docker
-            docker-compose down
-            docker-compose up -d --build
+
+            # Installer les dépendances Node.js
+            npm install
+
+            # Compiler le TypeScript en JavaScript
+            npm run build
+
+            # Lancer l'application Node.js en arrière-plan
+            pm2 stop index || true # Arrêter l'application si elle est déjà en cours d'exécution
+            pm2 start dist/index.js --name xxxtentacion # Démarrer l'application avec pm2
+
+      - name: Verify Deployment
+        run: echo "Deployment successful."
