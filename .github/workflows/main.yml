@@ -36,7 +36,7 @@ jobs:
               git pull origin main
             else
               echo "Le projet n'existe pas. Clonage du dépôt..."
-              git clone https://github.com/your-username/your-repo.git $PROJECT_PATH
+              git clone https://github.com/Anthonydt16/xxxtentacion.git $PROJECT_PATH
               cd $PROJECT_PATH
             fi
             #crée un fichier .env
