@@ -32,13 +32,15 @@ jobs:
             #sudo git pull origin master on tape le mot de passe dans secret.password
             echo ${{ secrets.PASSWORD }} | sudo -S git pull origin master
             # Installer les dépendances Node.js
+            sleep 10
             sudo npm install
-
+            sleep 10
             # Compiler le TypeScript en JavaScript
             sudo npm run build
-
+            sleep 10
             # Lancer l'application Node.js en arrière-plan
             pm2 stop xxxtentacion || true # Arrêter l'application si elle est déjà en cours d'exécution
+            sleep 10
             pm2 start dist/index.js --name xxxtentacion # Démarrer l'application avec pm2
 
       - name: Verify Deployment
