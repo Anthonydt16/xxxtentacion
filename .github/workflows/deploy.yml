@@ -39,7 +39,8 @@ jobs:
               git clone https://github.com/your-username/your-repo.git $PROJECT_PATH
               cd $PROJECT_PATH
             fi
-
+            #crée un fichier .env
+            sed -i 's/^\(TOKEN\s*=\s*\).*$/\1${{ secrets.TOKEN }}/; s/^\(CHANNEL_ID\s*=\s*\).*$/\1${{ secrets.CHANNEL_ID }}/; s/^\(SPOTIFY_CLIENT_ID\s*=\s*\).*$/\1${{ secrets.SPOTIFY_CLIENT_ID }}/; s/^\(SPOTIFY_CLIENT_SECRET\s*=\s*\).*$/\1${{ secrets.SPOTIFY_CLIENT_SECRET }}/; s/^\(GUILD_ID\s*=\s*\).*$/\1${{ secrets.GUILD_ID }}/;' .env
             # Construire et démarrer les conteneurs Docker
             docker-compose down
             docker-compose up -d --build
