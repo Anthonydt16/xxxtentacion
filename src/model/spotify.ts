@@ -37,8 +37,6 @@ class SpotifyApi {
 
       this.accessToken = response.data.access_token;
       this.tokenExpiry = Date.now() + response.data.expires_in * 1000;
-
-      console.log('Authenticated with Spotify. Token:', this.accessToken);
     } catch (error) {
       console.error('Failed to authenticate with Spotify:', error);
       throw new Error('Authentication failed');
