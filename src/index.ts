@@ -4,6 +4,9 @@ import {
   TextChannel,
   SlashCommandBuilder,
   EmbedBuilder,
+  GuildMemberRoleManager,
+  Interaction,
+  CommandInteraction,
 } from 'discord.js';
 import * as dotenv from 'dotenv';
 import SpotifyApi from './model/spotify';
@@ -53,7 +56,30 @@ client.once('ready', async () => {
 });
 
 // Gestionnaire des commandes slash
-client.on('interactionCreate', async (interaction) => {
+client.on('interactionCreate', async (interaction: Interaction) => {
+  // Affiner le type d'interaction pour un CommandInteraction
+  const commandInteraction = interaction as CommandInteraction;
+
+  // Définissez l'ID du rôle couronne ici
+  const requiredRole = '1272312276258652191'; // Remplacez par l'ID du rôle requis
+
+  // Vérifiez si l'utilisateur possède le rôle requis
+  if (commandInteraction.member && commandInteraction.member.roles instanceof GuildMemberRoleManager) {
+    if (!commandInteraction.member.roles.cache.has(requiredRole)) {
+      await commandInteraction.reply({
+        content: "You don't have permission to use this command.",
+        ephemeral: true, // Rend le message visible uniquement pour l'utilisateur
+      });
+      return;
+    }
+  } else {
+    await commandInteraction.reply({
+      content: "Could not verify your roles. Please contact an administrator.",
+      ephemeral: true,
+    });
+    return;
+  }
+
   if (!interaction.isCommand()) return;
 
   if (interaction.commandName === 'toprap') {

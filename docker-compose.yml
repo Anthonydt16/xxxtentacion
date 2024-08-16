@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  discord-bot:
+    image: node:18-alpine
+    container_name: discord-bot
+    working_dir: /usr/src/app
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - TOKEN=${TOKEN}
+      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
+      - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
+      - GUILD_ID=${GUILD_ID}
+      - CHANNEL_ID=${CHANNEL_ID}
+    command: sh -c "npm install && npm run build && node dist/index.js"
+    restart: always

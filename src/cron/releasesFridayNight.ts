@@ -10,8 +10,8 @@ import SpotifyApi from '../model/spotify';
 // cron.schedule('*/2 * * * *', async () => {
 
 async function releasesFridayNight(spotifyApi: SpotifyApi, channel: TextChannel) {
-  cron.schedule('*/2 * * * *', async () => { 
-  // cron.schedule('0 12 * * 5', async () => {
+  // cron.schedule('*/2 * * * *', async () => { 
+  cron.schedule('0 12 * * 5', async () => {
     console.log('Running weekly rap releases cron job...');
 
     const albums = await spotifyApi.searchReleasesFridayNight();
