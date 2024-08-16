@@ -38,15 +38,10 @@ jobs:
               echo "Le projet n'existe pas. Clonage du dépôt..."
               git clone https://github.com/Anthonydt16/xxxtentacion.git
               cd $PROJECT_PATH
+              sudo touch .env
             fi
 
-            # Créer ou mettre à jour le fichier .env
-            if [ -f .env ]; then
-                echo "Fichier .env trouvé. Mise à jour des variables..."
-            else
-                echo "Fichier .env non trouvé. Création d'un nouveau fichier .env..."
-                touch .env
-            fi
+            # mettre à jour le fichier .env
             sed -i 's/^\(TOKEN\s*=\s*\).*$/\1${{ secrets.TOKEN }}/; s/^\(CHANNEL_ID\s*=\s*\).*$/\1${{ secrets.CHANNEL_ID }}/; s/^\(SPOTIFY_CLIENT_ID\s*=\s*\).*$/\1${{ secrets.SPOTIFY_CLIENT_ID }}/; s/^\(SPOTIFY_CLIENT_SECRET\s*=\s*\).*$/\1${{ secrets.SPOTIFY_CLIENT_SECRET }}/; s/^\(GUILD_ID\s*=\s*\).*$/\1${{ secrets.GUILD_ID }}/;' .env
 
             # Installer les dépendances Node.js
