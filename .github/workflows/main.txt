@@ -1,0 +1,49 @@
+name: Deploy Bot to VPS
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      IP: ${{ secrets.IP_VPS }}
+      PORT: ${{ secrets.PORT_VPS }}
+      LOGIN: ${{ secrets.LOGIN_VPS }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: SSH into VPS and deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ env.IP }}
+          username: ${{ env.LOGIN }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ env.PORT }}
+          script: |
+            # Définir le chemin du projet sur le VPS
+            PROJECT_PATH="/home/anthony/xxxtentacion"
+            cd $PROJECT_PATH
+            #sudo git pull origin master on tape le mot de passe dans secret.password
+            echo ${{ secrets.PASSWORD }} | sudo -S git pull origin master
+            # Installer les dépendances Node.js
+            sleep 10
+            sudo npm install
+            sleep 10
+            # Compiler le TypeScript en JavaScript
+            sudo npm run build
+            sleep 10
+            # Lancer l'application Node.js en arrière-plan
+            pm2 stop xxxtentacion || true # Arrêter l'application si elle est déjà en cours d'exécution
+            sleep 10
+            pm2 delete xxxtentacion 
+            sleep 10
+            pm2 start dist/index.js --node-version 22.6.0 --name xxxtentacion # Démarrer l'application avec pm2
+
+      - name: Verify Deployment
+        run: echo "Deployment successful."
