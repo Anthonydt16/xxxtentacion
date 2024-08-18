@@ -41,6 +41,8 @@ jobs:
             # Lancer l'application Node.js en arrière-plan
             pm2 stop xxxtentacion || true # Arrêter l'application si elle est déjà en cours d'exécution
             sleep 10
+            pm2 delete xxxtentacion 
+            sleep 10
             pm2 start dist/index.js --name xxxtentacion # Démarrer l'application avec pm2
 
       - name: Verify Deployment
