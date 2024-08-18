@@ -43,7 +43,7 @@ jobs:
             sleep 10
             pm2 delete xxxtentacion 
             sleep 10
-            pm2 start dist/index.js --name xxxtentacion # Démarrer l'application avec pm2
+            pm2 start dist/index.js --node-version 22.6.0 --name xxxtentacion # Démarrer l'application avec pm2
 
       - name: Verify Deployment
         run: echo "Deployment successful."
