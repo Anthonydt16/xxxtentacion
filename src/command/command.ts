@@ -19,7 +19,7 @@ class Command {
     async permissionCheck(): Promise<boolean> {
       const commandInteraction = this.interaction as CommandInteraction;
       if (commandInteraction.member && commandInteraction.member.roles instanceof GuildMemberRoleManager) {
-        if (!commandInteraction.member.roles.cache.some((role) => this.roleList.includes(role.name))) {
+        if (!commandInteraction.member.roles.cache.some((role) => this.roleList.includes(role.id))) {
           await commandInteraction.reply({
             content: "Vous n'avez pas la permission d'utiliser cette commande.",
             ephemeral: true,

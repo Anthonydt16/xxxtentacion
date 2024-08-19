@@ -14,6 +14,7 @@ import SpotifyApi from './model/spotify';
 import Cron from './cron';
 import TopRap from './command/toprap';
 import Ban from './command/ban';
+import Timeout from './command/timeout';
 
 dotenv.config();
 
@@ -104,6 +105,8 @@ client.on('interactionCreate', async (interaction: Interaction) => {
   new TopRap(interaction, spotifyApi, [roleList.couronne]);
 
   new Ban(interaction, spotifyApi, [roleList.couronne]);
+
+  new Timeout(interaction, spotifyApi, [roleList.couronne]);
 
 
   if (interaction.commandName === 'help') {
