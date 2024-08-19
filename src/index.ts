@@ -44,6 +44,21 @@ client.once('ready', async () => {
       .setName('toprap')
       .setDescription('Affiche les 10 meilleurs titres de Rap US et Rap FR sur Spotify.'),
       new SlashCommandBuilder()
+      .setName('timeout')  // Nom en minuscule, valide
+      .setDescription('Mute un utilisateur pour une durée donnée.')
+      .addUserOption(option =>
+          option.setName('user')  // Nom en minuscule, valide
+              .setDescription('l\'utilisateur à mute')
+              .setRequired(true))
+      .addStringOption(option =>
+          option.setName('time')  // Nom en minuscule, valide
+              .setDescription('Durée du mute (s, m, h, d)')
+              .setRequired(true))
+      .addStringOption(option =>
+          option.setName('reason')  // Nom en minuscule, valide
+              .setDescription('Raison du mute')
+              .setRequired(false)),
+      new SlashCommandBuilder()
       .setName('ban')  // Nom en minuscule, valide
       .setDescription('Ban a user from the server.')
       .addUserOption(option => 
@@ -109,6 +124,14 @@ client.on('interactionCreate', async (interaction: Interaction) => {
         {
           name: '/unban',
           value: 'Unban un utilisateur du serveur.',
+        },
+        {
+          name: '/timeout',
+          value: 'Mute un utilisateur pour une durée donnée.',
+        },
+        {
+          name: '/untimeout',
+          value: 'Unmute un utilisateur.',
         }
       )
       .setFooter({
