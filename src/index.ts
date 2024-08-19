@@ -43,24 +43,24 @@ client.once('ready', async () => {
     new SlashCommandBuilder()
       .setName('toprap')
       .setDescription('Affiche les 10 meilleurs titres de Rap US et Rap FR sur Spotify.'),
-    new SlashCommandBuilder()
-      .setName('ban')
-      .setDescription('Ban un utilisateur du serveur.')
+      new SlashCommandBuilder()
+      .setName('ban')  // Nom en minuscule, valide
+      .setDescription('Ban a user from the server.')
       .addUserOption(option => 
-          option.setName('userId')
-              .setDescription('L\'utilisateur à bannir')
+          option.setName('user')  // Nom en minuscule, valide
+              .setDescription('The user to ban')
               .setRequired(true))
       .addStringOption(option =>
-          option.setName('reason')
-              .setDescription('La raison du ban')
+          option.setName('reason')  // Nom en minuscule, valide
+              .setDescription('Reason for the ban')
               .setRequired(false)),
-    new SlashCommandBuilder()
-        .setName('unban')
-        .setDescription('Unban un utilisateur du serveur.')
-        .addStringOption(option =>
-            option.setName('userId')
-                .setDescription('L\'utilisateur à unban')
-                .setRequired(true)),
+      new SlashCommandBuilder()
+      .setName('unban')  // Nom en minuscule, valide
+      .setDescription('Unban a user from the server.')
+      .addStringOption(option =>
+          option.setName('userid')  // Nom en minuscule, valide
+              .setDescription('The ID of the user to unban')
+              .setRequired(true)),
     new SlashCommandBuilder()
       .setName('help')
       .setDescription('Liste des commandes disponibles.'),
