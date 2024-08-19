@@ -52,7 +52,8 @@ class Ban extends Command {
             }
         } else if (this.interaction.commandName === 'unban') {
             const userDiscordId = this.interaction.options.get('user')?.user;
-
+            console.log(userDiscordId);
+            
             const guild = this.interaction.guild;
             if (!guild) {
                 await this.interaction.reply({ content: "La commande doit être exécutée dans un serveur.", ephemeral: true });
@@ -65,11 +66,7 @@ class Ban extends Command {
             }
 
             try {
-                // Fetch the member to unban using the userDiscordId
-                const bannedUsers = await guild.bans.fetch();
-                const user = bannedUsers.find((user) => user.user.id === userDiscordId.id);
-
-                if (user) {
+                if (userDiscordId) {
                     // Unban the user from the guild
                     await guild.bans.remove(userDiscordId.id);
                     await this.interaction.reply({ content: `${userDiscordId.tag} a été débanni.` });

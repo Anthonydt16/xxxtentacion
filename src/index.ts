@@ -57,7 +57,7 @@ client.once('ready', async () => {
       new SlashCommandBuilder()
       .setName('unban')  // Nom en minuscule, valide
       .setDescription('Unban a user from the server.')
-      .addStringOption(option =>
+      .addUserOption(option =>
           option.setName('user')  // Nom en minuscule, valide
               .setDescription('The ID of the user to unban')
               .setRequired(true)),
