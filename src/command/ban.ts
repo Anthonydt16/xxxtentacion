@@ -1,4 +1,4 @@
-import { CommandInteraction, GuildMember } from "discord.js";
+import { CommandInteraction, GuildMember, GuildMemberRoleManager } from "discord.js";
 import Command from "./command";
 import SpotifyApi from "../model/spotify";
 
@@ -20,9 +20,23 @@ class Ban extends Command {
     }
 
     async run() {
-        if (this.interaction.commandName === 'ban') {
-            const userDiscordId = this.interaction.options.get('user')?.user;
-            const reason = this.interaction.options.get('reason')?.value as string;
+        const hasPermission = await this.permissionCheck();
+        if (!hasPermission) return;  // Si l'utilisateur n'a pas la permission, arrête l'exécution
+
+        const commandInteraction = this.interaction as CommandInteraction;
+
+        if (commandInteraction.commandName === 'ban') {
+            const userDiscordId = commandInteraction.options.get('user')?.user;
+            const reason = commandInteraction.options.get('reason')?.value as string;
+
+            if (commandInteraction.member && commandInteraction.member.roles instanceof GuildMemberRoleManager) {
+                if (commandInteraction.member.roles.cache.some((role) => this.roleList.includes(role.name))) {
+                    await commandInteraction.reply({ content: "Vous ne pouvez pas bannir un utilisateur ayant le rôle couronne.", ephemeral: true });
+                    return;
+                }
+            }
+
+
 
             const guild = this.interaction.guild;
             if (!guild) {
@@ -35,12 +49,18 @@ class Ban extends Command {
                 return;
             }
 
-            try {
-                // Fetch the member to ban using the userDiscordId
-                const member = await guild.members.fetch(userDiscordId);
+            //si l'id est le même que celui de l'utilisateur qui a lancé la commande on refuse
+            console.log(userDiscordId.id);
+            console.log(commandInteraction.user.id);
+            
+            if (userDiscordId.id === commandInteraction.user.id) {
+                await commandInteraction.reply({ content: "Vous ne pouvez pas vous bannir vous-même.", ephemeral: true });
+                return;
+            }
 
+            try {
+                const member = await guild.members.fetch(userDiscordId);
                 if (member) {
-                    // Ban the member from the guild
                     await member.ban({ reason: reason });
                     await this.interaction.reply({ content: `${member.user.tag} a été banni pour la raison suivante : ${reason}` });
                 } else {
@@ -52,8 +72,7 @@ class Ban extends Command {
             }
         } else if (this.interaction.commandName === 'unban') {
             const userDiscordId = this.interaction.options.get('user')?.user;
-            console.log(userDiscordId);
-            
+
             const guild = this.interaction.guild;
             if (!guild) {
                 await this.interaction.reply({ content: "La commande doit être exécutée dans un serveur.", ephemeral: true });
@@ -67,7 +86,6 @@ class Ban extends Command {
 
             try {
                 if (userDiscordId) {
-                    // Unban the user from the guild
                     await guild.bans.remove(userDiscordId.id);
                     await this.interaction.reply({ content: `${userDiscordId.tag} a été débanni.` });
                 } else {
