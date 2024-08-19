@@ -71,7 +71,7 @@ client.once('ready', async () => {
     for (const command of commands) {
       await guild.commands.create(command);
     }
-    console.log('Slash commands /topRap and /help registered.');
+    console.log('Slash commands /topRap, /help, /ban and /unban registered.');
   } else {
     console.log('Guild not found.');
   }
