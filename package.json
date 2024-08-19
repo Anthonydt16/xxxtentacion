@@ -27,6 +27,7 @@
     "discord.js": "^14.15.3",
     "dotenv": "^16.4.5",
     "node-cron": "^3.0.3",
+    "postgres": "^3.4.4",
     "spotify-web-api-node": "^5.0.2",
     "web-streams-polyfill": "^4.0.0"
   }

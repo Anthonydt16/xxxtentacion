@@ -1,17 +1,22 @@
 version: '3.8'
 
 services:
-  discord-bot:
-    image: node:18-alpine
-    container_name: discord-bot
-    working_dir: /usr/src/app
-    volumes:
-      - .:/usr/src/app
+  postgres:
+    image: postgres:13
+    container_name: discord-bot-postgres
     environment:
-      - TOKEN=${TOKEN}
-      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
-      - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
-      - GUILD_ID=${GUILD_ID}
-      - CHANNEL_ID=${CHANNEL_ID}
-    command: sh -c "npm install && npm run build && node dist/index.js"
-    restart: always
+      POSTGRES_USER: discordbot
+      POSTGRES_PASSWORD: supersecretpassword
+      POSTGRES_DB: discordbotdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - discord-bot-network
+
+volumes:
+  postgres_data:
+
+networks:
+  discord-bot-network:

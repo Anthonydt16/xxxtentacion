@@ -12,6 +12,8 @@ import {
 import * as dotenv from 'dotenv';
 import SpotifyApi from './model/spotify';
 import Cron from './cron';
+import TopRap from './command/toprap';
+import Ban from './command/ban';
 
 dotenv.config();
 
@@ -22,6 +24,11 @@ const client = new Client({
     GatewayIntentBits.MessageContent,
   ],
 });
+
+const roleList = {
+  couronne: '1272312276258652191',
+  test: '1040320932247511160',
+}
 
 const spotifyApi = new SpotifyApi();
 
@@ -35,10 +42,28 @@ client.once('ready', async () => {
   const commands = [
     new SlashCommandBuilder()
       .setName('toprap')
-      .setDescription('Get the top 10 Rap US and Rap FR tracks on Spotify'),
+      .setDescription('Affiche les 10 meilleurs titres de Rap US et Rap FR sur Spotify.'),
+    new SlashCommandBuilder()
+      .setName('ban')
+      .setDescription('Ban un utilisateur du serveur.')
+      .addUserOption(option => 
+          option.setName('userId')
+              .setDescription('L\'utilisateur à bannir')
+              .setRequired(true))
+      .addStringOption(option =>
+          option.setName('reason')
+              .setDescription('La raison du ban')
+              .setRequired(false)),
+    new SlashCommandBuilder()
+        .setName('unban')
+        .setDescription('Unban un utilisateur du serveur.')
+        .addStringOption(option =>
+            option.setName('userId')
+                .setDescription('L\'utilisateur à unban')
+                .setRequired(true)),
     new SlashCommandBuilder()
       .setName('help')
-      .setDescription('List all commands and their descriptions'),
+      .setDescription('Liste des commandes disponibles.'),
   ];
 
   const guild = client.guilds.cache.get(process.env.GUILD_ID!);
@@ -58,92 +83,33 @@ client.once('ready', async () => {
 
 // Gestionnaire des commandes slash
 client.on('interactionCreate', async (interaction: Interaction) => {
-  // Affiner le type d'interaction pour un CommandInteraction
-  const commandInteraction = interaction as CommandInteraction;
-
-  // Définissez l'ID du rôle couronne ici
-  const requiredRole = '1272312276258652191'; // Remplacez par l'ID du rôle requis
-
-  // Vérifiez si l'utilisateur possède le rôle requis
-  if (commandInteraction.member && commandInteraction.member.roles instanceof GuildMemberRoleManager) {
-    if (!commandInteraction.member.roles.cache.has(requiredRole)) {
-      await commandInteraction.reply({
-        content: "You don't have permission to use this command.",
-        ephemeral: true, // Rend le message visible uniquement pour l'utilisateur
-      });
-      return;
-    }
-  } else {
-    await commandInteraction.reply({
-      content: "Could not verify your roles. Please contact an administrator.",
-      ephemeral: true,
-    });
-    return;
-  }
 
   if (!interaction.isCommand()) return;
 
-  if (interaction.commandName === 'toprap') {
-    await interaction.deferReply();
+  new TopRap(interaction, spotifyApi, [roleList.couronne]);
 
-    const usTopTracks = await spotifyApi.getTopTracksByGenre('rap', 'US');
-    const frTopTracks = await spotifyApi.getTopTracksByGenre('rap', 'FR');
+  new Ban(interaction, spotifyApi, [roleList.couronne]);
 
-    const usEmbed = new EmbedBuilder()
-      .setColor(0x1db954) // Couleur principale de Spotify
-      .setTitle(' :flag_us: Top 10 Rap US Tracks')
-      .setDescription('Here are the top 10 Rap US tracks on Spotify:')
-      .setFooter({
-        text: 'Powered by Gogodix for RapVerse',
-        iconURL:
-          'https://cdn.discordapp.com/icons/1272290016697258055/a_7ac23c514b4a51ace634494cd7a96a61.webp?size=96',
-      });
-
-    usEmbed.addFields(
-      usTopTracks.map((track, index) => ({
-        name: `${index + 1}. ${track.name}`,
-        value: `by ${track.artists.map((artist) => artist.name).join(', ')}\n🔗 [Listen on Spotify](${track.external_urls.spotify})`,
-      }))
-    );
-
-    const frEmbed = new EmbedBuilder()
-      .setColor(0x1db954) // Couleur principale de Spotify
-      .setTitle(' :flag_fr: Top 10 Rap FR Tracks')
-      .setDescription('Here are the top 10 Rap FR tracks on Spotify:')
-      .setFooter({
-        text: 'Powered by Gogodix for RapVerse',
-        iconURL:
-          'https://cdn.discordapp.com/icons/1272290016697258055/a_7ac23c514b4a51ace634494cd7a96a61.webp?size=96',
-      });
-
-    frEmbed.addFields(
-      frTopTracks.map((track, index) => ({
-        name: `${index + 1}. ${track.name}`,
-        value: `by ${track.artists.map((artist) => artist.name).join(', ')}\n🔗 [Listen on Spotify](${track.external_urls.spotify})`,
-      }))
-    );
-
-    await interaction.followUp({
-      content: 'Here are the top 10 Rap US tracks on Spotify:',
-      embeds: [usEmbed],
-    });
-    await interaction.followUp({
-      content: 'Here are the top 10 Rap FR tracks on Spotify:',
-      embeds: [frEmbed],
-    });
-  }
 
   if (interaction.commandName === 'help') {
     const helpEmbed = new EmbedBuilder()
       .setColor(0x1db954) // Couleur principale de Spotify
-      .setTitle('Help - List of Commands')
-      .setDescription('Here are the available commands for the bot:')
+      .setTitle('Help - Liste des commandes')
+      .setDescription('Voici la liste des commandes disponibles :')
       .addFields(
         {
           name: '/toprap',
-          value: 'Get the top 10 Rap US and Rap FR tracks on Spotify.',
+          value: 'Affiche les 10 meilleurs titres de Rap US et Rap FR sur Spotify.',
         },
-        { name: '/help', value: 'List all commands and their descriptions.' }
+        { name: '/help', value: 'Affiche la liste des commandes disponibles.' },
+        {
+          name: '/ban',
+          value: 'Ban un utilisateur du serveur.',
+        },
+        {
+          name: '/unban',
+          value: 'Unban un utilisateur du serveur.',
+        }
       )
       .setFooter({
         text: 'Powered by Gogodix for RapVerse',
