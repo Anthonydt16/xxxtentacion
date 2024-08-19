@@ -21,7 +21,7 @@ class Ban extends Command {
 
     async run() {
         if (this.interaction.commandName === 'ban') {
-            const userDiscordId = this.interaction.options.get('userId')?.user;
+            const userDiscordId = this.interaction.options.get('user')?.user;
             const reason = this.interaction.options.get('reason')?.value as string;
 
             const guild = this.interaction.guild;
@@ -31,7 +31,7 @@ class Ban extends Command {
             }
 
             if (!userDiscordId) {
-                await this.interaction.reply({ content: "L'argument userId est manquant.", ephemeral: true });
+                await this.interaction.reply({ content: "L'argument user est manquant.", ephemeral: true });
                 return;
             }
 
@@ -51,7 +51,7 @@ class Ban extends Command {
                 await this.interaction.reply({ content: "Une erreur s'est produite lors du ban de l'utilisateur.", ephemeral: true });
             }
         } else if (this.interaction.commandName === 'unban') {
-            const userDiscordId = this.interaction.options.get('userId')?.user;
+            const userDiscordId = this.interaction.options.get('user')?.user;
 
             const guild = this.interaction.guild;
             if (!guild) {
@@ -60,7 +60,7 @@ class Ban extends Command {
             }
 
             if (!userDiscordId) {
-                await this.interaction.reply({ content: "L'argument userId est manquant.", ephemeral: true });
+                await this.interaction.reply({ content: "L'argument user est manquant.", ephemeral: true });
                 return;
             }
 
