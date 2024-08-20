@@ -3,19 +3,12 @@ import Command from "./command";
 import SpotifyApi from "../model/spotify";
 
 class Timeout extends Command {
-    spotifyApi: SpotifyApi;
-    roleList: string[] = [];
-    interaction: CommandInteraction;
-
     constructor(
         interaction: CommandInteraction,
-        spotifyApi: SpotifyApi,
-        roleList: string[]
-    ) {
-        super(interaction, spotifyApi, roleList);
-        this.interaction = interaction;
-        this.spotifyApi = spotifyApi;
-        this.roleList = roleList;
+        requiredRoles: string[],
+        requiredPermissions: bigint[],
+      ) {
+        super(interaction, requiredRoles, requiredPermissions);
         this.run();
     }
 
@@ -38,83 +31,73 @@ class Timeout extends Command {
     }
 
     async run() {
-        const hasPermission = await this.permissionCheck();
-        if (!hasPermission) return;  // Si l'utilisateur n'a pas la permission, arrête l'exécution
+        const hasPermission = await this.hasPermission(); // Vérifie les permissions
+        if (!hasPermission) return;
+
         if (this.interaction.commandName === 'timeout') {
-            const userDiscordId = this.interaction.options.get('user')?.user;
-            const durationStr = this.interaction.options.get('time')?.value as string;
-            const reason = this.interaction.options.get('reason')?.value as string || "No reason provided";
-
-            const duration = this.parseDuration(durationStr);
-
-            if (!duration || duration > 28 * 24 * 60 * 60 * 1000) {
-                await this.interaction.reply({ content: "La durée spécifiée est invalide ou dépasse 28 jours.", ephemeral: true });
-                return;
-            }
-
-            // Vérifier si l'utilisateur est protégé par un rôle
-            if (this.interaction.member && this.interaction.member.roles instanceof GuildMemberRoleManager) {
-                if (!this.interaction.member.roles.cache.some((role) => this.roleList.includes(role.name))) {
-                    await this.interaction.reply({ content: "Vous ne pouvez pas mettre en sourdine un utilisateur ayant le rôle couronne.", ephemeral: true });
-                    return;
-                }
-            }
-
-            const guild = this.interaction.guild;
-            if (!guild) {
-                await this.interaction.reply({ content: "La commande doit être exécutée dans un serveur.", ephemeral: true });
-                return;
-            }
-
-            if (!userDiscordId) {
-                await this.interaction.reply({ content: "L'argument user est manquant.", ephemeral: true });
-                return;
-            }
-
-            try {
-                // Fetch the member to timeout
-                const member = await guild.members.fetch(userDiscordId);
-
-                if (member) {
-                    // Mute the member
-                    await member.timeout(duration, reason);
-                    await this.interaction.reply({ content: `${member.user.tag} a été mis en sourdine pendant ${durationStr} pour la raison suivante : ${reason}` });
-                } else {
-                    await this.interaction.reply({ content: "Utilisateur non trouvé.", ephemeral: true });
-                }
-            } catch (error) {
-                console.error("Error while trying to timeout a user:", error);
-                await this.interaction.reply({ content: "Une erreur s'est produite lors de la mise en sourdine de l'utilisateur.", ephemeral: true });
-            }
+            await this.handleTimeout();
         } else if (this.interaction.commandName === 'untimeout') {
-            const userDiscordId = this.interaction.options.get('user')?.user;
+            await this.handleUnTimeout();
+        }
+    }
 
-            const guild = this.interaction.guild;
-            if (!guild) {
-                await this.interaction.reply({ content: "La commande doit être exécutée dans un serveur.", ephemeral: true });
-                return;
+    private async handleTimeout() {
+        const userDiscordId = this.interaction.options.get('user')?.user;
+        const durationStr = this.interaction.options.get('time')?.value as string;
+        const reason = this.interaction.options.get('reason')?.value as string || "No reason provided";
+
+        if (!durationStr) {
+            await this.interaction.reply({ content: "La durée est manquante.", ephemeral: true });
+            return;
+        }
+
+        const duration = this.parseDuration(durationStr);
+
+        if (!duration || duration > 28 * 24 * 60 * 60 * 1000) {
+            await this.interaction.reply({ content: "La durée spécifiée est invalide ou dépasse 28 jours.", ephemeral: true });
+            return;
+        }
+
+        const guild = this.interaction.guild;
+        if (!guild || !userDiscordId) {
+            await this.interaction.reply({ content: "Une erreur est survenue. Vérifiez les arguments.", ephemeral: true });
+            return;
+        }
+
+        try {
+            const member = await guild.members.fetch(userDiscordId.id);
+            if (member) {
+                await member.timeout(duration, reason);
+                await this.interaction.reply({ content: `${member.user.tag} a été mis en sourdine pendant ${durationStr} pour la raison suivante : ${reason}` });
+            } else {
+                await this.interaction.reply({ content: "Utilisateur non trouvé.", ephemeral: true });
             }
+        } catch (error) {
+            console.error("Error while trying to timeout a user:", error);
+            await this.interaction.reply({ content: "Une erreur s'est produite lors de la mise en sourdine de l'utilisateur.", ephemeral: true });
+        }
+    }
 
-            if (!userDiscordId) {
-                await this.interaction.reply({ content: "L'argument user est manquant.", ephemeral: true });
-                return;
+    private async handleUnTimeout() {
+        const userDiscordId = this.interaction.options.get('user')?.user;
+
+        const guild = this.interaction.guild;
+        if (!guild || !userDiscordId) {
+            await this.interaction.reply({ content: "Une erreur est survenue. Vérifiez les arguments.", ephemeral: true });
+            return;
+        }
+
+        try {
+            const member = await guild.members.fetch(userDiscordId.id);
+            if (member) {
+                await member.timeout(null);
+                await this.interaction.reply({ content: `${member.user.tag} n'est plus en sourdine.` });
+            } else {
+                await this.interaction.reply({ content: "Utilisateur non trouvé.", ephemeral: true });
             }
-
-            try {
-                // Fetch the member to untimeout
-                const member = await guild.members.fetch(userDiscordId);
-
-                if (member) {
-                    // Unmute the member by setting timeout to null
-                    await member.timeout(null);
-                    await this.interaction.reply({ content: `${member.user.tag} n'est plus en sourdine.` });
-                } else {
-                    await this.interaction.reply({ content: "Utilisateur non trouvé.", ephemeral: true });
-                }
-            } catch (error) {
-                console.error("Error while trying to untimeout a user:", error);
-                await this.interaction.reply({ content: "Une erreur s'est produite lors du retrait de la sourdine de l'utilisateur.", ephemeral: true });
-            }
+        } catch (error) {
+            console.error("Error while trying to untimeout a user:", error);
+            await this.interaction.reply({ content: "Une erreur s'est produite lors du retrait de la sourdine de l'utilisateur.", ephemeral: true });
         }
     }
 }

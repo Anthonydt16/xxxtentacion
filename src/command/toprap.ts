@@ -6,12 +6,15 @@ class TopRap extends Command {
     interaction: CommandInteraction;
     spotifyApi: SpotifyApi;
     roleList: string[] = [];
+    requiredPermissions: bigint[] = [];
+
     constructor(
         interaction: CommandInteraction,
         spotifyApi: SpotifyApi,
         roleList: string[],
+        requiredPermissions?: bigint[]
     ) {
-        super(interaction, spotifyApi, roleList);
+        super(interaction, roleList, requiredPermissions);
         this.interaction = interaction;
         this.spotifyApi = spotifyApi;
         this.roleList = roleList;
@@ -20,6 +23,9 @@ class TopRap extends Command {
 
     public async run() {
     if (this.interaction.commandName === 'toprap') {
+      const hasPermission = await this.hasPermission();
+      if (!hasPermission) return;
+      await this.interaction.deferReply();
       const usTopTracks = await this.spotifyApi.getTopTracksByGenre('rap', 'US');
       const frTopTracks = await this.spotifyApi.getTopTracksByGenre('rap', 'FR');
 
