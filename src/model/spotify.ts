@@ -80,26 +80,55 @@ class SpotifyApi {
   public async searchReleasesFridayNight(): Promise<Album[]> {
     const accessToken = await this.getAccessToken();
     const response = await axios.get(
-      'https://api.spotify.com/v1/browse/new-releases',
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        params: {
-          limit: 50,
-        },
-      }
+        'https://api.spotify.com/v1/browse/new-releases',
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+            params: {
+                limit: 50,
+            },
+        }
     );
-    const albumsFilter = response.data.albums.items.filter((album: Album) => {
-      //album sortie cette entre aujourd'hui et il y a 2 semaines
-      const releaseDate = new Date(album.release_date);
-      const twoWeeksAgo = new Date();
-      twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
-      return releaseDate >= twoWeeksAgo && releaseDate <= new Date();
-    });
-    console.log(albumsFilter);
 
-    return albumsFilter;
+    const albumsFilter = response.data.albums.items.filter((album: Album) => {
+        const releaseDate = new Date(album.release_date);
+        const twoWeeksAgo = new Date();
+        twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+        return releaseDate >= twoWeeksAgo && releaseDate <= new Date();
+    });
+
+    const rapAlbums: Album[] = [];
+
+    // Pour chaque album, on vérifie si au moins un artiste est associé au genre 'rap'
+    for (const album of albumsFilter) {
+        const artistIds = album.artists.map((artist: any) => artist.id);
+
+        // Appel API pour obtenir les détails de chaque artiste
+        const artistDetails = await axios.get(
+            `https://api.spotify.com/v1/artists`,
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+                params: {
+                    ids: artistIds.join(','),
+                },
+            }
+        );
+
+        const isRap = artistDetails.data.artists.some((artist: any) =>
+            artist.genres.includes('rap')
+        );
+
+        // Si au moins un artiste a le genre 'rap', on garde l'album
+        if (isRap) {
+            rapAlbums.push(album);
+        }
+    }
+
+    console.log(rapAlbums);
+    return rapAlbums;
   }
 }
 
