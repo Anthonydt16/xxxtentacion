@@ -112,7 +112,7 @@ client.once('ready', async () => {
   }
 
   //start cron job
-  const cron = new Cron(spotifyApi, client.channels.cache.get(process.env.CHANNEL_ID!) as TextChannel);
+  const cron = new Cron(spotifyApi, client.channels.cache.get(process.env.CHANNEL_ID!) as TextChannel, client.channels.cache.get(process.env.LOG_CHANNEL_ID!) as TextChannel);
   cron.start();
 });
 
